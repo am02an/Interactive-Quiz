@@ -1,26 +1,30 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO;
 
-public static class CertificateRenderer
+public class CertificateRenderer : MonoBehaviour
 {
-    public static string SaveCertificatePNG(Camera cam, string filename)
+    public Canvas certificateCanvas; // Assign your certificate UI Canvas here
+
+    public void SaveCertificatePNG(string filePath)
     {
-        RenderTexture rt = new RenderTexture(1920, 1080, 24);
-        cam.targetTexture = rt;
-        Texture2D screenshot = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
-        cam.Render();
-        RenderTexture.active = rt;
-        screenshot.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
-        screenshot.Apply();
+        StartCoroutine(CaptureUI(filePath));
+    }
 
-        byte[] bytes = screenshot.EncodeToPNG();
-        string path = Path.Combine(Application.persistentDataPath, filename);
-        File.WriteAllBytes(path, bytes);
+    private System.Collections.IEnumerator CaptureUI(string filePath)
+    {
+        yield return new WaitForEndOfFrame(); // Wait for UI to render
 
-        cam.targetTexture = null;
-        RenderTexture.active = null;
-        Object.Destroy(rt);
+        // Create a texture the size of the screen
+        Texture2D texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
 
-        return path;
+        // Read screen pixels into the texture
+        texture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        texture.Apply();
+
+        // Save as PNG
+        byte[] bytes = texture.EncodeToPNG();
+        File.WriteAllBytes(filePath, bytes);
+
+        Debug.Log($"✅ Certificate saved with UI at: {filePath}");
     }
 }

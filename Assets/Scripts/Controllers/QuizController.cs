@@ -52,25 +52,26 @@ public class QuizController : MonoBehaviour
         view.DisplayQuestion(SessionManager.Instance.QuestionsPool[currentIndex], OnAnswerSelected);
     }
 
-    void OnAnswerSelected(bool isCorrect)
+    void OnAnswerSelected(int selectedIndex) // <-- pass index instead of bool
     {
         isAnswering = true;
 
+        Question currentQuestion = SessionManager.Instance.QuestionsPool[currentIndex];
+
+        bool isCorrect = selectedIndex == currentQuestion.correctIndex;
         if (isCorrect)
         {
             score++;
-            view.ShowAnswerFeedback(true); // ✅ Green highlight
         }
-        else
-        {
-            view.ShowAnswerFeedback(false); // ❌ Red highlight
-        }
+
+        // Tell the view to color the buttons
+        view.ShowOptionFeedback(selectedIndex, currentQuestion.correctIndex);
 
         GameEvents.OnScoreChanged?.Invoke(score);
 
-        // Wait 1.2 seconds so player sees feedback before next question
         StartCoroutine(NextQuestionAfterDelay(1.2f));
     }
+
 
     IEnumerator NextQuestionAfterDelay(float delay)
     {

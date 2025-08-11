@@ -23,20 +23,42 @@ public class QuizView : MonoBehaviour
         GameEvents.OnScoreChanged -= UpdateScore;
     }
 
-    public void DisplayQuestion(Question q, Action<bool> callback)
+  public void DisplayQuestion(Question q, System.Action<int> onOptionSelected)
     {
-        questionText.text = q.questionText;
+        // Set question text
+        // (Assuming you already have a TMP text field for question)
+         questionText.text = q.questionText;
+
+        // Set options
         for (int i = 0; i < optionButtons.Length; i++)
         {
             optionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = q.options[i];
-            int idx = i;
+            optionButtons[i].interactable = true;
+            optionButtons[i].image.color = Color.white; // reset color
+
+            int index = i; // local copy for lambda
             optionButtons[i].onClick.RemoveAllListeners();
-            optionButtons[i].onClick.AddListener(() => {
-                callback(idx == q.correctIndex);
-            });
+            optionButtons[i].onClick.AddListener(() => onOptionSelected(index));
         }
     }
 
+    public void ShowOptionFeedback(int selectedIndex, int correctIndex)
+    {
+        // Disable buttons to prevent extra clicks
+        foreach (var btn in optionButtons)
+            btn.interactable = false;
+
+        // Color the selected button
+        if (selectedIndex == correctIndex)
+        {
+            optionButtons[selectedIndex].image.color = Color.green;
+        }
+        else
+        {
+            optionButtons[selectedIndex].image.color = Color.red;
+            optionButtons[correctIndex].image.color = Color.green; // show correct one
+        }
+    }
     void UpdateTimer(float t)
     {
         timerText.text = Mathf.CeilToInt(t).ToString();

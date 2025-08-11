@@ -42,15 +42,22 @@ public class QuizController : MonoBehaviour
 
     void ShowQuestion()
     {
-        if (currentIndex >= 5)
+        if (SessionManager.Instance.QuestionsPool == null || SessionManager.Instance.QuestionsPool.Length == 0)
         {
+            Debug.LogError("Questions pool is empty!");
             EndQuiz();
             return;
         }
 
+        // Pick a random question index
+        int randomIndex = Random.Range(0, SessionManager.Instance.QuestionsPool.Length);
+
         isAnswering = false;
-        view.DisplayQuestion(SessionManager.Instance.QuestionsPool[currentIndex], OnAnswerSelected);
+
+        // Show the randomly picked question
+        view.DisplayQuestion(SessionManager.Instance.QuestionsPool[randomIndex], OnAnswerSelected);
     }
+
 
     void OnAnswerSelected(int selectedIndex) // <-- pass index instead of bool
     {

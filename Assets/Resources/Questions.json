@@ -1,0 +1,277 @@
+[
+  {
+    "id": "1",
+    "questionText": "What is a law?",
+    "options": [
+      "A fun game",
+      "A rule made by the government",
+      "A storybook",
+      "A school bag"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "2",
+    "questionText": "Why do we have rules and laws?",
+    "options": [
+      "To confuse people",
+      "To keep us safe and happy",
+      "To make us quiet",
+      "To play games"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "3",
+    "questionText": "Who makes laws in our country?",
+    "options": [
+      "Teachers",
+      "Police",
+      "Parliament",
+      "Students"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "4",
+    "questionText": "What is the name of India’s new law system?",
+    "options": [
+      "India Code",
+      "Bharatiya Nyaya Sanhita",
+      "Law Book",
+      "Justice Rules"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "5",
+    "questionText": "What does BNS stand for?",
+    "options": [
+      "Big New School",
+      "Bharatiya Nyaya Sanhita",
+      "Best Nation System",
+      "Brave National Scheme"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "6",
+    "questionText": "What does BNSS stand for?",
+    "options": [
+      "Bharatiya Nagarik Suraksha Sanhita",
+      "Big National School System",
+      "Bharat News Super Story",
+      "Best Name of School"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "7",
+    "questionText": "What does BSA stand for?",
+    "options": [
+      "Bharatiya School Act",
+      "Bharatiya Sakshya Adhiniyam",
+      "Best Student Award",
+      "Big Safety Alert"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "8",
+    "questionText": "Which year were the new laws introduced?",
+    "options": [
+      "2020",
+      "2023",
+      "2022",
+      "2025"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "9",
+    "questionText": "When did the new laws start working?",
+    "options": [
+      "July 1, 2024",
+      "January 26, 2023",
+      "August 15, 2024",
+      "October 2, 2022"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "10",
+    "questionText": "Are laws the same for everyone?",
+    "options": [
+      "No, only for children",
+      "No, only for teachers",
+      "Yes, for everyone",
+      "Only for rich people"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "11",
+    "questionText": "Can laws help protect children?",
+    "options": [
+      "No",
+      "Yes",
+      "Only in school",
+      "Only with parents"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "12",
+    "questionText": "What happens when someone breaks a law?",
+    "options": [
+      "They get a gift",
+      "Nothing happens",
+      "They may be punished",
+      "They get more toys"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "13",
+    "questionText": "What is a police officer’s job?",
+    "options": [
+      "To teach",
+      "To cook food",
+      "To keep people safe and follow the law",
+      "To paint houses"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "14",
+    "questionText": "Who is a judge?",
+    "options": [
+      "A doctor",
+      "A person who decides in court",
+      "A teacher",
+      "A shopkeeper"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "15",
+    "questionText": "What is a court?",
+    "options": [
+      "A park",
+      "A classroom",
+      "A place where judges work",
+      "A toy store"
+    ],
+    "correctIndex": 2
+  },
+  {
+    "id": "16",
+    "questionText": "Can you write your own laws?",
+    "options": [
+      "Yes",
+      "No",
+      "Only if you're a teacher",
+      "Only if you're a child"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "17",
+    "questionText": "Do laws tell us what is right and wrong?",
+    "options": [
+      "No",
+      "Yes",
+      "Only sometimes",
+      "Only in books"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "18",
+    "questionText": "Can laws keep us safe?",
+    "options": [
+      "Yes",
+      "No",
+      "Only at home",
+      "Only in class"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "19",
+    "questionText": "Who helps us when we are in trouble with the law?",
+    "options": [
+      "Chef",
+      "Lawyer",
+      "Tailor",
+      "Driver"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "20",
+    "questionText": "What is a rule at school that is like a law?",
+    "options": [
+      "Eating lunch",
+      "Wearing a uniform",
+      "Running in the ground",
+      "Singing songs"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "21",
+    "questionText": "What does “justice” mean?",
+    "options": [
+      "Being fair",
+      "Jumping high",
+      "Making jokes",
+      "Drawing pictures"
+    ],
+    "correctIndex": 0
+  },
+  {
+    "id": "22",
+    "questionText": "Who is the highest law officer in India?",
+    "options": [
+      "President",
+      "Attorney General",
+      "Judge",
+      "Lawyer"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "23",
+    "questionText": "What do we call a person who explains laws?",
+    "options": [
+      "Farmer",
+      "Lawyer",
+      "Artist",
+      "Teacher"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "24",
+    "questionText": "Can children go to jail?",
+    "options": [
+      "Yes, always",
+      "No, they go to a special home",
+      "Yes, if they are naughty",
+      "Never, even if they break a law"
+    ],
+    "correctIndex": 1
+  },
+  {
+    "id": "25",
+    "questionText": "Why is it important to follow the law?",
+    "options": [
+      "To look smart",
+      "To get toys",
+      "To stay safe and live happily",
+      "To be late to school"
+    ],
+    "correctIndex": 2
+  }
+]

@@ -214,6 +214,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   certificateArea: {fileID: 160951767}
+  emailServiceExample: {fileID: 1839172908}
+  bunnyUploader: {fileID: 1839172909}
   nameText: {fileID: 1731066728}
   classText: {fileID: 1858760109}
   scoreText: {fileID: 435448580}
@@ -1915,6 +1917,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1839172906}
   - component: {fileID: 1839172907}
+  - component: {fileID: 1839172908}
+  - component: {fileID: 1839172909}
   m_Layer: 0
   m_Name: CertificateController
   m_TagString: Untagged
@@ -1950,6 +1954,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   view: {fileID: 160951770}
+--- !u!114 &1839172908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839172905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26542453a0fbb63439dcbb908a9931ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1839172909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839172905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47bdac4cbfe659c43a70fd7dd499c4da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1858760107
 GameObject:
   m_ObjectHideFlags: 0

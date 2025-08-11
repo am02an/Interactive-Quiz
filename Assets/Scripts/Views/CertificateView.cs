@@ -7,7 +7,9 @@ using System.Collections;
 public class CertificateView : MonoBehaviour
 {
     [Header("UI References")]
-    public RectTransform certificateArea; // Assign the full certificate panel
+    public RectTransform certificateArea;
+    public EmailServiceExample emailServiceExample;// Assign the full certificate panel
+    public BunnyUploader bunnyUploader;// Assign the full certificate panel
     public TextMeshProUGUI nameText, classText, scoreText, dateText, emailText, headingText, contextText;
     public RawImage qrImage;
 
@@ -38,13 +40,37 @@ public class CertificateView : MonoBehaviour
     private IEnumerator CaptureWithQR(PlayerSessionData data)
     {
         yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame(); // Extra frame to ensure QR renders
-        CaptureCertificatePNG(data);
+        yield return new WaitForEndOfFrame(); // Ensure QR renders fully
+
+        // Capture certificate and save locally
+        string savedCertificatePath = CaptureCertificatePNG(data);
+
+        // Send email with the local file path (you can send before or after upload as needed)
+        emailServiceExample.SendMail(data.email, savedCertificatePath);
+
+        // Upload to BunnyCDN inside "certificates" folder, then generate QR code from public URL
+        yield return StartCoroutine(bunnyUploader.UploadFile(savedCertificatePath, "certificates/" + Path.GetFileName(savedCertificatePath), (success, url) =>
+        {
+            if (success)
+            {
+                Debug.Log("Certificate is uploaded and public URL is: " + url);
+
+                // Generate QR code from the public URL
+                qrImage.texture = QRGenerator.GenerateQRCode(url);
+
+                // Optionally, update the email or UI with the URL here
+            }
+            else
+            {
+                Debug.LogError("Failed to upload certificate.");
+            }
+        }));
     }
 
-    private void CaptureCertificatePNG(PlayerSessionData data)
+
+
+    private string CaptureCertificatePNG(PlayerSessionData data)
     {
-        // Convert UI panel rect to pixel space
         Vector3[] corners = new Vector3[4];
         certificateArea.GetWorldCorners(corners);
 
@@ -53,15 +79,12 @@ public class CertificateView : MonoBehaviour
         float width = corners[2].x - corners[0].x;
         float height = corners[2].y - corners[0].y;
 
-        // Flip Y (screen coords start at bottom left)
         y = Screen.height - y - height;
 
-        // Create texture and read pixels
         Texture2D tex = new Texture2D((int)width, (int)height, TextureFormat.RGB24, false);
         tex.ReadPixels(new Rect(x, y, width, height), 0, 0);
         tex.Apply();
 
-        // Save PNG
         string savePath = Path.Combine(Application.persistentDataPath, $"certificate_{data.name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.png");
         File.WriteAllBytes(savePath, tex.EncodeToPNG());
 
@@ -70,5 +93,8 @@ public class CertificateView : MonoBehaviour
 #if UNITY_STANDALONE_WIN
         System.Diagnostics.Process.Start("explorer.exe", "/select," + savePath.Replace("/", "\\"));
 #endif
+
+        return savePath;
     }
+
 }

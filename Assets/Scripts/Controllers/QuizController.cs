@@ -42,9 +42,8 @@ public class QuizController : MonoBehaviour
 
     void ShowQuestion()
     {
-        if (SessionManager.Instance.QuestionsPool == null || SessionManager.Instance.QuestionsPool.Length == 0)
+        if (currentIndex >= 5)
         {
-            Debug.LogError("Questions pool is empty!");
             EndQuiz();
             return;
         }

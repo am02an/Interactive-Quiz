@@ -2,8 +2,11 @@ using UnityEngine;
 
 public static class LocalDB
 {
+    #region Constants
     private const string SessionKey = "Quiz_Session";
+    #endregion
 
+    #region Public Methods
     public static void SaveSession(PlayerSessionData data)
     {
         string json = JsonUtility.ToJson(data);
@@ -19,4 +22,5 @@ public static class LocalDB
         }
         return null;
     }
+    #endregion
 }

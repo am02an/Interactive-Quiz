@@ -6,13 +6,16 @@ using System.Collections;
 
 public class CertificateView : MonoBehaviour
 {
+    #region UI References
     [Header("UI References")]
     public RectTransform certificateArea;
-    public EmailServiceExample emailServiceExample;// Assign the full certificate panel
-    public BunnyUploader bunnyUploader;// Assign the full certificate panel
+    public EmailServiceExample emailServiceExample; // Assign the full certificate panel
+    public BunnyUploader bunnyUploader;             // Assign the full certificate panel
     public TextMeshProUGUI nameText, classText, scoreText, dateText, emailText, headingText, contextText;
     public RawImage qrImage;
+    #endregion
 
+    #region Public Methods
     public void ShowCertificate(PlayerSessionData data)
     {
         // Heading
@@ -22,11 +25,11 @@ public class CertificateView : MonoBehaviour
         contextText.text = "This certifies that the following participant has successfully completed the quiz.";
 
         // Dynamic Data
-        nameText.text = "<color=#00BFFF>Name:</color> <color=#FFFFFF>  " + data.name + "</color>";
-        emailText.text = "<color=#00BFFF>Email:</color> <color=#FFFFFF>  " + data.email + "</color>";
-        scoreText.text = "<color=#00BFFF>Score:</color> <color=#FFFFFF>  " + data.score + "</color>";
-        dateText.text = "<color=#00BFFF>Date:</color> <color=#FFFFFF>  " + data.playTime + "</color>";
-        classText.text = "<color=#00BFFF>Class:</color> <color=#FFFFFF>  " + data.className + "</color>";
+        nameText.text = $"<color=#00BFFF>Name:</color> <color=#FFFFFF>  {data.name}</color>";
+        emailText.text = $"<color=#00BFFF>Email:</color> <color=#FFFFFF>  {data.email}</color>";
+        scoreText.text = $"<color=#00BFFF>Score:</color> <color=#FFFFFF>  {data.score}</color>";
+        dateText.text = $"<color=#00BFFF>Date:</color> <color=#FFFFFF>  {data.playTime}</color>";
+        classText.text = $"<color=#00BFFF>Class:</color> <color=#FFFFFF>  {data.className}</color>";
 
         // Generate QR Code (make sure QRImage is inside certificateArea in hierarchy)
         qrImage.texture = QRGenerator.GenerateQRCode(
@@ -36,7 +39,9 @@ public class CertificateView : MonoBehaviour
         // Capture after rendering
         StartCoroutine(CaptureWithQR(data));
     }
+    #endregion
 
+    #region Private Coroutines
     private IEnumerator CaptureWithQR(PlayerSessionData data)
     {
         yield return new WaitForEndOfFrame();
@@ -66,9 +71,9 @@ public class CertificateView : MonoBehaviour
             }
         }));
     }
+    #endregion
 
-
-
+    #region Private Methods
     private string CaptureCertificatePNG(PlayerSessionData data)
     {
         Vector3[] corners = new Vector3[4];
@@ -96,5 +101,5 @@ public class CertificateView : MonoBehaviour
 
         return savePath;
     }
-
+    #endregion
 }

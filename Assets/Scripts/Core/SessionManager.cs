@@ -2,10 +2,8 @@ using UnityEngine;
 
 public class SessionManager : MonoBehaviour
 {
+    #region Singleton
     public static SessionManager Instance { get; private set; }
-
-    public PlayerSessionData CurrentSession;
-    public Question[] QuestionsPool;
 
     private void Awake()
     {
@@ -17,4 +15,10 @@ public class SessionManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    #endregion
+
+    #region Fields and Properties
+    public PlayerSessionData CurrentSession;
+    public Question[] QuestionsPool;
+    #endregion
 }

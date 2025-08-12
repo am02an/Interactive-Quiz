@@ -3,8 +3,11 @@ using UnityEngine.SceneManagement;
 
 public class RegistrationController : MonoBehaviour
 {
+    #region Fields and Properties
     public RegistrationView view;
+    #endregion
 
+    #region Public Methods
     public void OnRegisterButton()
     {
         var data = new PlayerSessionData
@@ -22,4 +25,5 @@ public class RegistrationController : MonoBehaviour
 
         SceneManager.LoadScene("QuizScene");
     }
+    #endregion
 }

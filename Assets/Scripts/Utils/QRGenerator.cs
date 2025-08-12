@@ -1,10 +1,11 @@
 using ZXing;
-using ZXing.Common;  // <--- Required for PixelData
+using ZXing.Common;  // Required for PixelData
 using ZXing.QrCode;
 using UnityEngine;
 
 public static class QRGenerator
 {
+    #region Public Methods
     public static Texture2D GenerateQRCode(string text)
     {
         var qrWriter = new BarcodeWriterPixelData
@@ -25,4 +26,5 @@ public static class QRGenerator
 
         return tex;
     }
+    #endregion
 }

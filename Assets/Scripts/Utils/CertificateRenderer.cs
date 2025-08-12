@@ -3,13 +3,18 @@ using System.IO;
 
 public class CertificateRenderer : MonoBehaviour
 {
+    #region Fields and Properties
     public Canvas certificateCanvas; // Assign your certificate UI Canvas here
+    #endregion
 
+    #region Public Methods
     public void SaveCertificatePNG(string filePath)
     {
         StartCoroutine(CaptureUI(filePath));
     }
+    #endregion
 
+    #region Private Methods
     private System.Collections.IEnumerator CaptureUI(string filePath)
     {
         yield return new WaitForEndOfFrame(); // Wait for UI to render
@@ -27,4 +32,5 @@ public class CertificateRenderer : MonoBehaviour
 
         Debug.Log($"✅ Certificate saved with UI at: {filePath}");
     }
+    #endregion
 }

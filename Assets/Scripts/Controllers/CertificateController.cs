@@ -2,9 +2,19 @@ using UnityEngine;
 
 public class CertificateController : MonoBehaviour
 {
+    #region Fields and Properties
     public CertificateView view;
+    #endregion
 
-    void Start()
+    #region Unity Callbacks
+    private void Start()
+    {
+        LoadAndShowCertificate();
+    }
+    #endregion
+
+    #region Methods
+    private void LoadAndShowCertificate()
     {
         var data = LocalDB.LoadSession();
         if (data != null)
@@ -12,4 +22,5 @@ public class CertificateController : MonoBehaviour
             view.ShowCertificate(data);
         }
     }
+    #endregion
 }

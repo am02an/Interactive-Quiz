@@ -5,11 +5,13 @@ using System.IO;
 
 public class BunnyUploader : MonoBehaviour
 {
-    // Your Bunny.net info
+    #region BunnyCDN Config
     private string storageZoneName = "mycertificat";
     private string CDN = "mycertificate";
     private string apiAccessKey = "224866d4-3010-4796-871366648803-aa9f-4dfa";
+    #endregion
 
+    #region Public Methods
     /// <summary>
     /// Upload a file to BunnyCDN storage.
     /// remoteFileName should include folder path, e.g., "Certificate/cert1.png"
@@ -50,4 +52,5 @@ public class BunnyUploader : MonoBehaviour
             callback(false, null);
         }
     }
+    #endregion
 }

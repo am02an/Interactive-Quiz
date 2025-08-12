@@ -5,19 +5,23 @@ using System.Collections;
 
 public class QuizController : MonoBehaviour
 {
+    #region Fields and Properties
     public QuizView view;
+
     private int currentIndex = 0;
     private float timeLeft = 60f;
     private int score = 0;
     private bool isAnswering = false;
+    #endregion
 
-    void Start()
+    #region Unity Callbacks
+    private void Start()
     {
         LoadQuestions();
         ShowQuestion();
     }
 
-    void Update()
+    private void Update()
     {
         if (!isAnswering) // Pause timer during feedback
         {
@@ -25,10 +29,15 @@ public class QuizController : MonoBehaviour
             GameEvents.OnTimerUpdated?.Invoke(timeLeft);
         }
 
-        if (timeLeft <= 0) EndQuiz();
+        if (timeLeft <= 0)
+        {
+            EndQuiz();
+        }
     }
+    #endregion
 
-    void LoadQuestions()
+    #region Quiz Logic
+    private void LoadQuestions()
     {
         TextAsset jsonFile = Resources.Load<TextAsset>("Questions");
         if (jsonFile == null)
@@ -40,7 +49,7 @@ public class QuizController : MonoBehaviour
         SessionManager.Instance.QuestionsPool = JsonConvert.DeserializeObject<Question[]>(jsonFile.text);
     }
 
-    void ShowQuestion()
+    private void ShowQuestion()
     {
         if (currentIndex >= 5)
         {
@@ -57,8 +66,7 @@ public class QuizController : MonoBehaviour
         view.DisplayQuestion(SessionManager.Instance.QuestionsPool[randomIndex], OnAnswerSelected);
     }
 
-
-    void OnAnswerSelected(int selectedIndex) // <-- pass index instead of bool
+    private void OnAnswerSelected(int selectedIndex) // Pass index instead of bool
     {
         isAnswering = true;
 
@@ -78,19 +86,19 @@ public class QuizController : MonoBehaviour
         StartCoroutine(NextQuestionAfterDelay(1.2f));
     }
 
-
-    IEnumerator NextQuestionAfterDelay(float delay)
+    private IEnumerator NextQuestionAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         currentIndex++;
         ShowQuestion();
     }
 
-    void EndQuiz()
+    private void EndQuiz()
     {
         var data = SessionManager.Instance.CurrentSession;
         data.score = score;
         LocalDB.SaveSession(data);
         SceneManager.LoadScene("CertificateScene");
     }
+    #endregion
 }

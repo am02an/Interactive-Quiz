@@ -2,32 +2,38 @@
 using UnityEngine.UI;
 using System;
 using TMPro;
+
 public class QuizView : MonoBehaviour
 {
+    #region UI References
     public TextMeshProUGUI questionText;
     public Button[] optionButtons;
     public TextMeshProUGUI timerText;
     public Image timerBar;
     public TextMeshProUGUI scoreText;
-    public Image feedbackPanel; 
+    public Image feedbackPanel;
     public TextMeshProUGUI feedbackText;
-    void OnEnable()
+    #endregion
+
+    #region Unity Callbacks
+    private void OnEnable()
     {
         GameEvents.OnTimerUpdated += UpdateTimer;
         GameEvents.OnScoreChanged += UpdateScore;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         GameEvents.OnTimerUpdated -= UpdateTimer;
         GameEvents.OnScoreChanged -= UpdateScore;
     }
+    #endregion
 
-  public void DisplayQuestion(Question q, System.Action<int> onOptionSelected)
+    #region Public Methods
+    public void DisplayQuestion(Question q, Action<int> onOptionSelected)
     {
         // Set question text
-        // (Assuming you already have a TMP text field for question)
-         questionText.text = q.questionText;
+        questionText.text = q.questionText;
 
         // Set options
         for (int i = 0; i < optionButtons.Length; i++)
@@ -59,16 +65,7 @@ public class QuizView : MonoBehaviour
             optionButtons[correctIndex].image.color = Color.green; // show correct one
         }
     }
-    void UpdateTimer(float t)
-    {
-        timerText.text = Mathf.CeilToInt(t).ToString();
-        timerBar.fillAmount = t / 60f;
-    }
 
-    void UpdateScore(int s)
-    {
-        scoreText.text = "Score: " + s;
-    }
     public void ShowAnswerFeedback(bool isCorrect)
     {
         if (isCorrect)
@@ -84,5 +81,18 @@ public class QuizView : MonoBehaviour
             feedbackText.text = "❌ Wrong!";
         }
     }
+    #endregion
 
+    #region Private Methods
+    private void UpdateTimer(float t)
+    {
+        timerText.text = Mathf.CeilToInt(t).ToString();
+        timerBar.fillAmount = t / 60f;
+    }
+
+    private void UpdateScore(int s)
+    {
+        scoreText.text = "Score: " + s;
+    }
+    #endregion
 }

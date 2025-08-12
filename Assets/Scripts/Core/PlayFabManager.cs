@@ -13,7 +13,7 @@ public class PlayFabManager : MonoBehaviour
     public string registrationScene = "RegistrationScene";
 
     private bool sessionAlreadySaved = false; // Prevents duplicate saves
-
+    public RotateLoader loader;
     private void Awake()
     {
         if (Instance == null)
@@ -52,6 +52,7 @@ public class PlayFabManager : MonoBehaviour
                     {
                         SessionManager.Instance.CurrentSession = data;
                         LocalDB.SaveSession(data);
+                        loader.transform.parent.gameObject.SetActive(true);
                         Debug.Log("👤 Player session restored. Skipping registration.");
                         UnityEngine.SceneManagement.SceneManager.LoadScene(mainGameScene);
                     }

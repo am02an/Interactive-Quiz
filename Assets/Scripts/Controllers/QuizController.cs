@@ -75,7 +75,9 @@ public class QuizController : MonoBehaviour
         bool isCorrect = selectedIndex == currentQuestion.correctIndex;
         if (isCorrect)
         {
+            var data = SessionManager.Instance.CurrentSession;
             score++;
+            data.score = score;
         }
 
         // Tell the view to color the buttons
@@ -95,9 +97,7 @@ public class QuizController : MonoBehaviour
 
     private void EndQuiz()
     {
-        var data = SessionManager.Instance.CurrentSession;
-        data.score = score;
-        LocalDB.SaveSession(data);
+       
         SceneManager.LoadScene("CertificateScene");
     }
     #endregion

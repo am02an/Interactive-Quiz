@@ -18,47 +18,30 @@ public static class LocalDB
         PlayerPrefs.SetString(SessionKey, json);
         PlayerPrefs.Save();
 
-        // First get existing cloud data
-        PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
-            result =>
+        // Always overwrite cloud values — no need to compare first
+        var updateData = new Dictionary<string, string>
+    {
+        { "PlayerName", data.name },
+        { "Class", data.className },
+        { "Mobile", data.mobile },
+        { "Email", data.email },
+        { "PlayTime", data.playTime },
+        { "Score", data.score.ToString() } // Always update score
+    };
+
+        var request = new UpdateUserDataRequest
+        {
+            Data = updateData
+        };
+
+        PlayFabClientAPI.UpdateUserData(request,
+            updateResult =>
             {
-                var updateData = new Dictionary<string, string>();
-
-                void CheckAndAdd(string key, string newValue)
-                {
-                    if (!result.Data.ContainsKey(key) || result.Data[key].Value != newValue)
-                    {
-                        updateData[key] = newValue; // Only update if value changed or key doesn't exist
-                }
-                }
-
-                CheckAndAdd("PlayerName", data.name);
-                CheckAndAdd("Class", data.className);
-                CheckAndAdd("Mobile", data.mobile);
-                CheckAndAdd("Email", data.email);
-                CheckAndAdd("PlayTime", data.playTime);
-                CheckAndAdd("Score", data.score.ToString());
-
-
-                if (updateData.Count > 0)
-                {
-                    var request = new UpdateUserDataRequest
-                    {
-                        Data = updateData
-                    };
-
-                    PlayFabClientAPI.UpdateUserData(request,
-                        updateResult => Debug.Log("✅ Player data updated to PlayFab cloud."),
-                        error => Debug.LogError("❌ Failed to update data to PlayFab: " + error.GenerateErrorReport()));
-                }
-                else
-                {
-                    Debug.Log("ℹ No changes detected — skipping cloud update.");
-                }
+                Debug.Log("✅ Player data saved to PlayFab cloud.");
             },
             error =>
             {
-                Debug.LogError("❌ Failed to retrieve existing cloud data: " + error.GenerateErrorReport());
+                Debug.LogError("❌ Failed to save data to PlayFab: " + error.GenerateErrorReport());
             });
     }
 

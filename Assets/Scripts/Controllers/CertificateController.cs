@@ -16,17 +16,21 @@ public class CertificateController : MonoBehaviour
     #region Methods
     private void LoadAndShowCertificate()
     {
-        LocalDB.LoadSession((data) =>
-        {
-            if (data != null)
-            {
-                view.ShowCertificate(data);
-            }
-            else
-            {
-                Debug.LogWarning("⚠ No certificate data found.");
-            }
-        });
+        // Save latest session data first
+        LocalDB.SaveSession(SessionManager.Instance.CurrentSession);
+
+        // Then load and display
+                view.ShowCertificate();
+        //LocalDB.LoadSession((data) =>
+        //{
+        //    if (data != null)
+        //    {
+        //    }
+        //    else
+        //    {
+        //        Debug.LogWarning("⚠ No certificate data found.");
+        //    }
+        //});
     }
     #endregion
 }

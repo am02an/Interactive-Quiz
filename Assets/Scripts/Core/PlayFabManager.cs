@@ -12,8 +12,8 @@ public class PlayFabManager : MonoBehaviour
     public string mainGameScene = "QuizScene";
     public string registrationScene = "RegistrationScene";
 
-    private bool sessionAlreadySaved = false; // Prevents duplicate saves
-    public RotateLoader loader;
+ 
+
     private void Awake()
     {
         if (Instance == null)
@@ -29,96 +29,58 @@ public class PlayFabManager : MonoBehaviour
 
     private void Start()
     {
-        AutoLogin();
+        // Always send the user to registration first
+        UnityEngine.SceneManagement.SceneManager.LoadScene(registrationScene);
     }
 
-    #region AUTO LOGIN
-    public void AutoLogin()
+    /// <summary>
+    /// Called after the user submits the registration form.
+    /// This will log in (create account if needed) and save their new data.
+    /// </summary>
+    public void RegisterAndStartQuiz(PlayerSessionData sessionData)
     {
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = SystemInfo.deviceUniqueIdentifier,
-            CreateAccount = false
-        };
-
-        PlayFabClientAPI.LoginWithCustomID(request,
-            result =>
-            {
-                Debug.Log("✅ Auto-login successful! PlayFabId: " + result.PlayFabId);
-
-                LoadPlayerDataFromCloud(data =>
-                {
-                    if (data != null)
-                    {
-                        SessionManager.Instance.CurrentSession = data;
-                        LocalDB.SaveSession(data);
-                        loader.transform.parent.gameObject.SetActive(true);
-                        Debug.Log("👤 Player session restored. Skipping registration.");
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(mainGameScene);
-                    }
-                    else
-                    {
-                        Debug.Log("⚠ No cloud data found. Sending to registration.");
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(registrationScene);
-                    }
-                });
-            },
-            error =>
-            {
-                Debug.LogWarning("⚠ Auto-login failed: " + error.GenerateErrorReport());
-                UnityEngine.SceneManagement.SceneManager.LoadScene(registrationScene);
-            });
-    }
-    #endregion
-
-    #region LOGIN OR REGISTER
-    public void LoginOrRegister(PlayerSessionData sessionData = null, System.Action<bool> onComplete = null)
-    {
-        var request = new LoginWithCustomIDRequest
-        {
-            CustomId = SystemInfo.deviceUniqueIdentifier,
+            CustomId = System.Guid.NewGuid().ToString(), // New account every time
             CreateAccount = true
         };
 
         PlayFabClientAPI.LoginWithCustomID(request,
             result =>
             {
-                Debug.Log("✅ Logged in! PlayFabId: " + result.PlayFabId);
+                Debug.Log("✅ New account created! PlayFabId: " + result.PlayFabId);
 
-                if (result.NewlyCreated)
+                var displayNameRequest = new UpdateUserTitleDisplayNameRequest
                 {
-                    Debug.Log("🆕 New account detected. Saving player data...");
-                    SavePlayerData(sessionData, () =>
+                    DisplayName = sessionData.name
+                };
+
+                PlayFabClientAPI.UpdateUserTitleDisplayName(displayNameRequest,
+                    displayResult =>
                     {
-                        SaveSessionLocallyOnce(sessionData);
-                        onComplete?.Invoke(true);
-                    });
-                }
-                else
-                {
-                    Debug.Log("👤 Existing player. Loading cloud data...");
-                    LoadPlayerDataFromCloud(data =>
+                        Debug.Log("✅ Display Name set to: " + sessionData.name);
+
+                        SavePlayerData(sessionData, () =>
+                        {
+                            SessionManager.Instance.CurrentSession = sessionData;
+                            LocalDB.SaveSession(sessionData);
+
+                            Debug.Log("🎯 Registration complete. Moving to quiz...");
+                            UnityEngine.SceneManagement.SceneManager.LoadScene(mainGameScene);
+                        });
+                    },
+                    displayError =>
                     {
-                        if (data != null)
-                        {
-                            SaveSessionLocallyOnce(data);
-                            onComplete?.Invoke(true);
-                        }
-                        else
-                        {
-                            Debug.LogWarning("⚠ No cloud data found for this player.");
-                            onComplete?.Invoke(false);
-                        }
+                        Debug.LogError("❌ Failed to set Display Name: " + displayError.GenerateErrorReport());
                     });
-                }
             },
             error =>
             {
-                Debug.LogError("❌ Login/Register failed: " + error.GenerateErrorReport());
-                onComplete?.Invoke(false);
+                Debug.LogError("❌ Registration/Login failed: " + error.GenerateErrorReport());
             });
     }
-    #endregion
+
+
 
     #region SAVE PLAYER DATA
     private void SavePlayerData(PlayerSessionData data, System.Action onSuccess)
@@ -145,47 +107,6 @@ public class PlayFabManager : MonoBehaviour
             error =>
             {
                 Debug.LogError("❌ Failed to save player data: " + error.GenerateErrorReport());
-            });
-    }
-
-    private void SaveSessionLocallyOnce(PlayerSessionData data)
-    {
-        if (sessionAlreadySaved) return;
-        SessionManager.Instance.CurrentSession = data;
-        LocalDB.SaveSession(data);
-        sessionAlreadySaved = true;
-    }
-    #endregion
-
-    #region LOAD PLAYER DATA
-    private void LoadPlayerDataFromCloud(System.Action<PlayerSessionData> onComplete)
-    {
-        PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
-            result =>
-            {
-                if (result.Data != null && result.Data.Count > 0)
-                {
-                    var data = new PlayerSessionData
-                    {
-                        name = result.Data["PlayerName"].Value,
-                        mobile = result.Data["Mobile"].Value,
-                        className = result.Data["Class"].Value,
-                        email = result.Data["Email"].Value,
-                        playTime = result.Data["PlayTime"].Value,
-                        score = int.Parse(result.Data["Score"].Value)
-                    };
-                    Debug.Log("✅ Player data loaded from cloud.");
-                    onComplete?.Invoke(data);
-                }
-                else
-                {
-                    onComplete?.Invoke(null);
-                }
-            },
-            error =>
-            {
-                Debug.LogError("❌ Failed to load player data: " + error.GenerateErrorReport());
-                onComplete?.Invoke(null);
             });
     }
     #endregion

@@ -12,6 +12,7 @@ public class RegistrationView : MonoBehaviour
     public TMP_InputField emailInput;
     public Button submitButton;
     public TextMeshProUGUI errorText;
+    public RotateLoader loader;
     #endregion
 
     #region Private Fields

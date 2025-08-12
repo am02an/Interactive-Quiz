@@ -29,31 +29,7 @@ public class RegistrationController : MonoBehaviour
             score = 0
         };
 
-        // Register or login
-        PlayFabManager.Instance.LoginOrRegister(sessionData, success =>
-        {
-            if (success)
-            {
-                Debug.Log("✅ Player registered/logged in and data synced with cloud.");
-
-                // Update PlayFab Display Name
-                var displayNameRequest = new PlayFab.ClientModels.UpdateUserTitleDisplayNameRequest
-                {
-                    DisplayName = playerName
-                };
-
-                PlayFab.PlayFabClientAPI.UpdateUserTitleDisplayName(displayNameRequest,
-                    result => Debug.Log("✅ Display name set to: " + result.DisplayName),
-                    error => Debug.LogError("❌ Failed to set display name: " + error.GenerateErrorReport())
-                );
-
-                UnityEngine.SceneManagement.SceneManager.LoadScene("QuizScene");
-            }
-            else
-            {
-                Debug.LogError("❌ Failed to register or log in player. Data not saved locally.");
-            }
-        });
+        // Call PlayFabManager to register and move to quiz
+        PlayFabManager.Instance.RegisterAndStartQuiz(sessionData);
     }
-
 }

@@ -18,14 +18,16 @@ public class CertificateView : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public void ShowCertificate(PlayerSessionData data)
+    public void ShowCertificate()
     {
+
         // Heading
         headingText.text = "<color=#FFD700><b>Certificate of Participation</b></color>";
 
         // Context
         contextText.text = "This certifies that the following participant has successfully completed the quiz.";
-
+        var data = SessionManager.Instance.CurrentSession;
+        Debug.Log($"[Certificate] Incoming score: {data.score}");
         // Dynamic Data
         nameText.text = $"<color=#00BFFF>Name:</color> <color=#FFFFFF>  {data.name}</color>";
         emailText.text = $"<color=#00BFFF>Email:</color> <color=#FFFFFF>  {data.email}</color>";

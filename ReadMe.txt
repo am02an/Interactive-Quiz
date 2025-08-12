@@ -54,5 +54,4 @@ This Unity-based Quiz Project allows users to take quizzes with a clean and user
 
 ---
 
-## Folder Structure (Suggested)
 

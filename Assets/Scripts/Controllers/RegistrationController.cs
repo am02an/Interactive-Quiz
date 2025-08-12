@@ -11,7 +11,8 @@ public class RegistrationController : MonoBehaviour
         string mobile = view.mobileInput.text.Trim();
         string email = view.emailInput.text.Trim();
 
-        if (string.IsNullOrEmpty(playerName) || string.IsNullOrEmpty(playerClass) || string.IsNullOrEmpty(mobile) || string.IsNullOrEmpty(email))
+        if (string.IsNullOrEmpty(playerName) || string.IsNullOrEmpty(playerClass) ||
+            string.IsNullOrEmpty(mobile) || string.IsNullOrEmpty(email))
         {
             Debug.LogWarning("⚠ Please fill in all fields.");
             return;
@@ -28,12 +29,24 @@ public class RegistrationController : MonoBehaviour
             score = 0
         };
 
-        // Pass session data to PlayFabManager and only save locally after cloud success
+        // Register or login
         PlayFabManager.Instance.LoginOrRegister(sessionData, success =>
         {
             if (success)
             {
                 Debug.Log("✅ Player registered/logged in and data synced with cloud.");
+
+                // Update PlayFab Display Name
+                var displayNameRequest = new PlayFab.ClientModels.UpdateUserTitleDisplayNameRequest
+                {
+                    DisplayName = playerName
+                };
+
+                PlayFab.PlayFabClientAPI.UpdateUserTitleDisplayName(displayNameRequest,
+                    result => Debug.Log("✅ Display name set to: " + result.DisplayName),
+                    error => Debug.LogError("❌ Failed to set display name: " + error.GenerateErrorReport())
+                );
+
                 UnityEngine.SceneManagement.SceneManager.LoadScene("QuizScene");
             }
             else
@@ -42,4 +55,5 @@ public class RegistrationController : MonoBehaviour
             }
         });
     }
+
 }

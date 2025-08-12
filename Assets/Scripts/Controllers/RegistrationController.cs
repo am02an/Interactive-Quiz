@@ -1,29 +1,45 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 
 public class RegistrationController : MonoBehaviour
 {
-    #region Fields and Properties
-    public RegistrationView view;
-    #endregion
+    public RegistrationView view; // UI input fields
 
-    #region Public Methods
     public void OnRegisterButton()
     {
-        var data = new PlayerSessionData
+        string playerName = view.nameInput.text.Trim();
+        string playerClass = view.classInput.text.Trim();
+        string mobile = view.mobileInput.text.Trim();
+        string email = view.emailInput.text.Trim();
+
+        if (string.IsNullOrEmpty(playerName) || string.IsNullOrEmpty(playerClass) || string.IsNullOrEmpty(mobile) || string.IsNullOrEmpty(email))
         {
-            name = view.nameInput.text.Trim(),
-            className = view.classInput.text.Trim(),
-            mobile = view.mobileInput.text.Trim(),
-            email = view.emailInput.text.Trim(),
+            Debug.LogWarning("⚠ Please fill in all fields.");
+            return;
+        }
+
+        // Create session data object
+        var sessionData = new PlayerSessionData
+        {
+            name = playerName,
+            className = playerClass,
+            mobile = mobile,
+            email = email,
             playTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             score = 0
         };
 
-        SessionManager.Instance.CurrentSession = data;
-        LocalDB.SaveSession(data);
-
-        SceneManager.LoadScene("QuizScene");
+        // Pass session data to PlayFabManager and only save locally after cloud success
+        PlayFabManager.Instance.LoginOrRegister(sessionData, success =>
+        {
+            if (success)
+            {
+                Debug.Log("✅ Player registered/logged in and data synced with cloud.");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("QuizScene");
+            }
+            else
+            {
+                Debug.LogError("❌ Failed to register or log in player. Data not saved locally.");
+            }
+        });
     }
-    #endregion
 }

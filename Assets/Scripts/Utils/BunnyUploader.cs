@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.IO;
@@ -6,49 +6,51 @@ using System.IO;
 public class BunnyUploader : MonoBehaviour
 {
     #region BunnyCDN Config
-    private string storageZoneName = "mycertificat";
-    private string CDN = "mycertificate";
-    private string apiAccessKey = "224866d4-3010-4796-871366648803-aa9f-4dfa";
+    private string storageZoneName = "mycertificates";
+    private string CDN = "QuizCertificate";
+    private string apiAccessKey = "ad5e5f22-0617-41d4-8c5b6a1b6cad-80ad-49a0";
     #endregion
 
     #region Public Methods
     /// <summary>
-    /// Upload a file to BunnyCDN storage.
-    /// remoteFileName should include folder path, e.g., "Certificate/cert1.png"
+    /// Uploads a file to BunnyCDN in: certificate/{playerName}/{fileName}
     /// </summary>
-    public IEnumerator UploadFile(string localFilePath, string remoteFileName, System.Action<bool, string> callback)
+    public IEnumerator UploadFile(string localFilePath, string playerName, string fileName, System.Action<bool, string> callback)
     {
         if (!File.Exists(localFilePath))
         {
-            Debug.LogError("File not found: " + localFilePath);
+            Debug.LogError("❌ File not found: " + localFilePath);
             callback(false, null);
             yield break;
         }
 
         byte[] fileData = File.ReadAllBytes(localFilePath);
 
-        // URL with folder path included in remoteFileName
-        string url = $"https://storage.bunnycdn.com/{storageZoneName}/{remoteFileName}";
+        // Build folder structure: certificate/{playerName}/{fileName}
+        string remotePath = $"certificate/{playerName}/{fileName}";
+
+        // URL for BunnyCDN storage
+        string url = $"https://storage.bunnycdn.com/{storageZoneName}/{remotePath}";
 
         UnityWebRequest www = UnityWebRequest.Put(url, fileData);
 
         // Set required headers
         www.SetRequestHeader("AccessKey", apiAccessKey);
-        www.SetRequestHeader("Content-Type", "image/png");
+        www.SetRequestHeader("Content-Type", "application/pdf");
 
         yield return www.SendWebRequest();
 
         if (www.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("File uploaded successfully: " + remoteFileName);
+            Debug.Log("✅ File uploaded successfully: " + remotePath);
 
-            // Construct the public URL, matching BunnyCDN public hostname and path
-            string publicUrl = $"https://{CDN}.b-cdn.net/{remoteFileName}";
+            // Public URL
+            string publicUrl = $"https://{CDN}.b-cdn.net/{remotePath}";
             callback(true, publicUrl);
         }
         else
         {
-            Debug.LogError("Upload failed: " + www.error);
+            Debug.LogError("❌ Upload failed: " + www.error);
             callback(false, null);
         }
     }

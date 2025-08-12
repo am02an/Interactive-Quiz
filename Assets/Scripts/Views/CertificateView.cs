@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.IO;
 using System.Collections;
+using System;
+using System.Text;
 
 public class CertificateView : MonoBehaviour
 {
@@ -44,38 +46,64 @@ public class CertificateView : MonoBehaviour
     #region Private Coroutines
     private IEnumerator CaptureWithQR(PlayerSessionData data)
     {
+        // Wait to ensure UI & QR code fully rendered
         yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame(); // Ensure QR renders fully
+        yield return new WaitForEndOfFrame();
 
-        // Capture certificate and save locally
-        string savedCertificatePath = CaptureCertificatePNG(data);
+        string savedCertificatePath = null;
 
-        // Send email with the local file path (you can send before or after upload as needed)
+        // Capture PDF and store file path
+        yield return StartCoroutine(CaptureCertificatePDFCoroutine(data, path =>
+        {
+            savedCertificatePath = path;
+        }));
+
+        if (string.IsNullOrEmpty(savedCertificatePath))
+        {
+            Debug.LogError("❌ Failed to capture certificate PDF.");
+            yield break;
+        }
+
+        // Send local PDF via email (before upload if desired)
         emailServiceExample.SendMail(data.email, savedCertificatePath);
 
-        // Upload to BunnyCDN inside "certificates" folder, then generate QR code from public URL
-        yield return StartCoroutine(bunnyUploader.UploadFile(savedCertificatePath, "certificates/" + Path.GetFileName(savedCertificatePath), (success, url) =>
-        {
-            if (success)
-            {
-                Debug.Log("Certificate is uploaded and public URL is: " + url);
+        // Extract file name from saved path
+        string fileName = Path.GetFileName(savedCertificatePath);
 
-                // Generate QR code from the public URL
+        // Upload PDF to BunnyCDN inside: certificate/{playerName}/{fileName}
+        yield return StartCoroutine(bunnyUploader.UploadFile(
+            savedCertificatePath,
+            data.name,      // player name folder
+            fileName,       // PDF file name
+            (success, url) =>
+            {
+                if (success)
+                {
+                    Debug.Log("✅ Certificate uploaded. Public URL: " + url);
+
+                // Generate QR code from public URL
                 qrImage.texture = QRGenerator.GenerateQRCode(url);
 
-                // Optionally, update the email or UI with the URL here
+                // Optional: email again with public URL
+                // emailServiceExample.SendMail(data.email, url);
             }
-            else
-            {
-                Debug.LogError("Failed to upload certificate.");
-            }
-        }));
+                else
+                {
+                    Debug.LogError("❌ Failed to upload certificate.");
+                }
+            }));
     }
+
+
     #endregion
 
     #region Private Methods
-    private string CaptureCertificatePNG(PlayerSessionData data)
+    public IEnumerator CaptureCertificatePDFCoroutine(PlayerSessionData data, Action<string> onComplete)
     {
+        // wait for UI to render
+        yield return new WaitForEndOfFrame();
+
+        // get world corners and compute rect in screen coords
         Vector3[] corners = new Vector3[4];
         certificateArea.GetWorldCorners(corners);
 
@@ -84,22 +112,92 @@ public class CertificateView : MonoBehaviour
         float width = corners[2].x - corners[0].x;
         float height = corners[2].y - corners[0].y;
 
+        // convert to readPixels coordinate system
         y = Screen.height - y - height;
 
-        Texture2D tex = new Texture2D((int)width, (int)height, TextureFormat.RGB24, false);
+        // create texture and read pixels
+        Texture2D tex = new Texture2D(Mathf.Max(1, (int)width), Mathf.Max(1, (int)height), TextureFormat.RGB24, false);
         tex.ReadPixels(new Rect(x, y, width, height), 0, 0);
         tex.Apply();
 
-        string savePath = Path.Combine(Application.persistentDataPath, $"certificate_{data.name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.png");
-        File.WriteAllBytes(savePath, tex.EncodeToPNG());
+        // encode to JPG (must use JPEG for /DCTDecode)
+        byte[] jpgBytes = tex.EncodeToJPG(90);
+        UnityEngine.Object.Destroy(tex);
 
-        Debug.Log("✅ Certificate saved at: " + savePath);
+        // create pdf path
+        string pdfPath = Path.Combine(Application.persistentDataPath,
+            $"certificate_{SanitizeFileName(data.name)}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
 
+        // write PDF
+        CreateSimplePDFWithJpeg(pdfPath, jpgBytes, (int)width, (int)height);
+
+        Debug.Log("✅ PDF saved at: " + pdfPath);
 #if UNITY_STANDALONE_WIN
-        System.Diagnostics.Process.Start("explorer.exe", "/select," + savePath.Replace("/", "\\"));
+        System.Diagnostics.Process.Start("explorer.exe", "/select," + pdfPath.Replace("/", "\\"));
 #endif
 
-        return savePath;
+        onComplete?.Invoke(pdfPath);
+    }
+
+    // minimal sanitizer for filename
+    private string SanitizeFileName(string s)
+    {
+        foreach (char c in Path.GetInvalidFileNameChars()) s = s.Replace(c, '_');
+        return s;
+    }
+
+    // Writes a very small PDF embedding a JPEG image (no external libs).
+    private void CreateSimplePDFWithJpeg(string filePath, byte[] jpegBytes, int imgWidth, int imgHeight)
+    {
+        using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+        using (var bw = new BinaryWriter(fs))
+        {
+            // PDF header (include a binary comment)
+            bw.Write(Encoding.ASCII.GetBytes("%PDF-1.4\n%\u00E2\u00E3\u00CF\u00D3\n"));
+
+            long[] offsets = new long[6]; // offsets[1..5] used
+
+            // 1. Catalog
+            offsets[1] = fs.Position;
+            bw.Write(Encoding.ASCII.GetBytes("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"));
+
+            // 2. Pages
+            offsets[2] = fs.Position;
+            bw.Write(Encoding.ASCII.GetBytes("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"));
+
+            // 3. Page (MediaBox uses image width/height as points)
+            offsets[3] = fs.Position;
+            string pageObj = $"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {imgWidth} {imgHeight}] " +
+                             $"/Resources << /XObject << /Im0 4 0 R >> /ProcSet [/PDF /ImageC] >> /Contents 5 0 R >>\nendobj\n";
+            bw.Write(Encoding.ASCII.GetBytes(pageObj));
+
+            // 4. Image XObject (JPEG bytes, DCTDecode)
+            offsets[4] = fs.Position;
+            bw.Write(Encoding.ASCII.GetBytes($"4 0 obj\n<< /Type /XObject /Subtype /Image /Width {imgWidth} /Height {imgHeight} " +
+                                            $"/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length {jpegBytes.Length} >>\n"));
+            bw.Write(Encoding.ASCII.GetBytes("stream\n"));
+            bw.Write(jpegBytes); // write raw jpeg bytes
+            bw.Write(Encoding.ASCII.GetBytes("\nendstream\nendobj\n"));
+
+            // 5. Content stream that paints the image to the page
+            offsets[5] = fs.Position;
+            string content = $"q\n{imgWidth} 0 0 {imgHeight} 0 0 cm\n/Im0 Do\nQ\n";
+            byte[] contentBytes = Encoding.ASCII.GetBytes(content);
+            bw.Write(Encoding.ASCII.GetBytes($"5 0 obj\n<< /Length {contentBytes.Length} >>\nstream\n"));
+            bw.Write(contentBytes);
+            bw.Write(Encoding.ASCII.GetBytes("\nendstream\nendobj\n"));
+
+            // xref
+            long xrefPos = fs.Position;
+            bw.Write(Encoding.ASCII.GetBytes("xref\n0 6\n0000000000 65535 f \n"));
+            for (int i = 1; i <= 5; i++)
+            {
+                bw.Write(Encoding.ASCII.GetBytes($"{offsets[i]:D10} 00000 n \n"));
+            }
+
+            // trailer
+            bw.Write(Encoding.ASCII.GetBytes($"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n{xrefPos}\n%%EOF\n"));
+        }
     }
     #endregion
 }

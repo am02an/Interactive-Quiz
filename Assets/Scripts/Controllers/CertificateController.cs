@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CertificateController : MonoBehaviour
 {
@@ -16,11 +16,17 @@ public class CertificateController : MonoBehaviour
     #region Methods
     private void LoadAndShowCertificate()
     {
-        var data = LocalDB.LoadSession();
-        if (data != null)
+        LocalDB.LoadSession((data) =>
         {
-            view.ShowCertificate(data);
-        }
+            if (data != null)
+            {
+                view.ShowCertificate(data);
+            }
+            else
+            {
+                Debug.LogWarning("⚠ No certificate data found.");
+            }
+        });
     }
     #endregion
 }
